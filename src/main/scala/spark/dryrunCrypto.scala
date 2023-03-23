@@ -1,7 +1,5 @@
 package spark
 
-import org.apache.spark.{SparkConf, SparkContext}
-import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.{SaveMode, SparkSession}
 object dryrunCrypto {
   def main(args: Array[String]): Unit = {
@@ -17,6 +15,8 @@ object dryrunCrypto {
     properties.setProperty("password", "WelcomeItc@2022")
     properties.put("driver", "org.postgresql.Driver")
 
+    import spark.implicits._
+
     // *****************************************************************************************************
     // Ethereum table Transformations
     println("Ethereum Initial DataFrame")
@@ -24,7 +24,12 @@ object dryrunCrypto {
     df_ethereum.show(false)
     // Create Hive Internal table
     df_ethereum.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.Ethereum_InitialDataFrame")
+
+    println("Ethereum DataFrame filtered by 'ethereum_price > 1.3'")
+    // filter() Transformation = filter the records in an RDD. filtering ethereum_price > "1.3".
+    val filtered_df_ethereum = df_ethereum.filter($"ethereum_price" > "1.3")
+    filtered_df_ethereum.show(false)
+    // Create Hive Internal table
+    filtered_df_ethereum.write.mode(SaveMode.Overwrite).saveAsTable("sergiu.Ethereum_FilteredByPrice")
   }
 }
-
-// spark-submit --master local --class spark.NewSparkJar scala_jar_sergiu-1.0-SNAPSHOT-jar-with-dependencies.jar
