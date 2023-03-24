@@ -54,5 +54,60 @@ object incrementalCrypto {
     val mean_price_df_ethereum_no_null = drop_mean_price_df_ethereum_null_column.withColumn("ethereum_mean_price", lit(ethereum_mean_price))
     mean_price_df_ethereum_no_null.show(false)
     mean_price_df_ethereum_no_null.write.mode(SaveMode.Append).saveAsTable("scalagroup.ethereum_mean_price")
+
+    // *****************************************************************************************************
+    // Bitcoin Incremental
+    // *****************************************************************************************************
+
+    val max_df_bitcoin = spark.sql("select max(bitcoin_id) from scalagroup.bitcoin_initialdataframe").first()
+    val cdc_df_bitcoin = max_df_bitcoin.get(0)
+    val query_df_bitcoin = s"(select * from bitcoin where cast(bitcoin_id as int) > $cdc_df_bitcoin) as tb1_bitcoin"
+
+    val df_bitcoin = spark.read.jdbc(url, query_df_bitcoin, properties)
+    df_bitcoin.show(false)
+    df_bitcoin.write.mode(SaveMode.Append).saveAsTable("scalagroup.bitcoin_initialdataframe")
+
+    // *****************************************************************************************************
+
+    val max_filtered_df_bitcoin = spark.sql("select max(bitcoin_id) from scalagroup.bitcoin_filteredbyprice").first()
+    val cdc_filtered_df_bitcoin = max_filtered_df_bitcoin.get(0)
+    val query_filtered_df_bitcoin = s"(select * from bitcoin where cast(bitcoin_id as int) > $cdc_filtered_df_bitcoin) as tb2_bitcoin"
+
+    val filtered_df_bitcoin = spark.read.jdbc(url, query_filtered_df_bitcoin, properties)
+    filtered_df_bitcoin.show(false)
+    filtered_df_bitcoin.write.mode(SaveMode.Append).saveAsTable("scalagroup.bitcoin_filteredbyprice")
+
+    // *****************************************************************************************************
+    val max_sorted_df_bitcoin = spark.sql("select max(bitcoin_id) from scalagroup.bitcoin_sortedbykeybyprice").first()
+    val cdc_sorted_df_bitcoin = max_sorted_df_bitcoin.get(0)
+    val query_sorted_df_bitcoin = s"(select * from bitcoin where cast(bitcoin_id as int) > $cdc_sorted_df_bitcoin) as tb3_bitcoin"
+
+    val sorted_df_bitcoin = spark.read.jdbc(url, query_sorted_df_bitcoin, properties)
+    sorted_df_bitcoin.show(false)
+    sorted_df_bitcoin.write.mode(SaveMode.Append).saveAsTable("scalagroup.bitcoin_sortedbykeybyprice")
+
+    // *****************************************************************************************************
+    val max_mean_price_df_bitcoin = spark.sql("select max(bitcoin_id) from scalagroup.bitcoin_mean_price").first()
+    val cdc_mean_price_df_bitcoin = max_mean_price_df_bitcoin.get(0)
+    val query_mean_price_df_bitcoin = s"(select * from bitcoin where cast(bitcoin_id as int) > $cdc_mean_price_df_bitcoin) as tb4_bitcoin"
+
+    val mean_price_df_bitcoin = spark.read.jdbc(url, query_mean_price_df_bitcoin, properties)
+    val drop_mean_price_df_bitcoin_null_column = mean_price_df_bitcoin.drop("bitcoin_NULL")
+    // Compute the bitcoin_mean_price of the "bitcoin_price" column
+    val bitcoin_mean_price = mean_price_df_bitcoin.select(mean(col("bitcoin_price"))).first().getDouble(0)
+    val mean_price_df_bitcoin_no_null = drop_mean_price_df_bitcoin_null_column.withColumn("bitcoin_mean_price", lit(bitcoin_mean_price))
+    mean_price_df_bitcoin_no_null.show(false)
+    mean_price_df_bitcoin_no_null.write.mode(SaveMode.Append).saveAsTable("scalagroup.bitcoin_mean_price")
+
+    // *****************************************************************************************************
+    // Ethereum Filtered Join Bitcoin Filtered Incremental
+    // *****************************************************************************************************
+    val max_df_ethereum_join_df_bitcoin = spark.sql("select max(bitcoin_id) from scalagroup.bitcoinjoinethereum").first()
+    val cdc_df_ethereum_join_df_bitcoin = max_df_ethereum_join_df_bitcoin.get(0)
+    val query_df_ethereum_join_df_bitcoin = s"(select * from bitcoin join ethereum on bitcoin_id = ethereum_id where cast(bitcoin_id as int) > $cdc_df_ethereum_join_df_bitcoin and cast(ethereum_id as int) > $cdc_df_ethereum_join_df_bitcoin) as tb_ethereum_join_bitcoin"
+
+    val df_ethereum_join_df_bitcoin = spark.read.jdbc(url, query_df_ethereum_join_df_bitcoin, properties)
+    df_ethereum_join_df_bitcoin.show(false)
+    df_ethereum_join_df_bitcoin.write.mode(SaveMode.Append).saveAsTable("scalagroup.bitcoinjoinethereum")
   }
 }
