@@ -70,5 +70,13 @@ object dryrunCrypto {
     // Create Hive Internal table
     filtered_df_bitcoin.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.bitcoin_filteredbyprice")
 
+    // *****************************************************************************************************
+    println("Bitcoin DataFrame sortByKey() descending order by bitcoin_price")
+    // sortByKey() Transformation
+    val sorted_df_bitcoin = filtered_df_bitcoin.orderBy(desc("bitcoin_price"))
+    sorted_df_bitcoin.show(false)
+    // Create Hive Internal table
+    sorted_df_bitcoin.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.bitcoin_sortedbykeybyprice")
+
   }
 }
