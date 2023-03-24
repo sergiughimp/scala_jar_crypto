@@ -45,5 +45,14 @@ object dryrunCrypto {
     // Create Hive Internal table
     sorted_df_ethereum.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.ethereum_sortedbykeybyprice")
 
+    // *****************************************************************************************************
+    println("Drop the ethereum_NULL column and Add a new column ethereum_mean_price")
+    val dropped_ethereum_null_column = df_ethereum.drop("ethereum_NULL")
+    // Compute the ethereum_mean_price of the "ethereum_price" column
+    val ethereum_mean_price = df_ethereum.select(mean(col("ethereum_price"))).first().getDouble(0)
+    val mean_price_df_ethereum = dropped_ethereum_null_column.withColumn("ethereum_mean_price", lit(ethereum_mean_price))
+    mean_price_df_ethereum.show(false)
+    mean_price_df_ethereum.write.mode(SaveMode.Overwrite).saveAsTable("sergiu.ethereum_mean_price")
+
   }
 }
