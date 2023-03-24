@@ -54,5 +54,13 @@ object dryrunCrypto {
     mean_price_df_ethereum.show(false)
     mean_price_df_ethereum.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.ethereum_mean_price")
 
+    // *****************************************************************************************************
+    // Bitcoin table Transformations
+    println("Bitcoin Initial DataFrame")
+    val df_bitcoin = spark.read.jdbc(url, "bitcoin", properties)
+    df_bitcoin.show(false)
+    // Create Hive Internal table
+    df_bitcoin.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.bitcoin_initialdataframe")
+
   }
 }
