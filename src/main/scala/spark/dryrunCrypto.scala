@@ -16,6 +16,8 @@ object dryrunCrypto {
     properties.put("driver", "org.postgresql.Driver")
 
     import spark.implicits._
+    import org.apache.spark.sql.functions._
+
 
     // *****************************************************************************************************
     // Ethereum table Transformations
@@ -25,11 +27,23 @@ object dryrunCrypto {
     // Create Hive Internal table
     df_ethereum.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.Ethereum_InitialDataFrame")
 
+    // *****************************************************************************************************
+
     println("Ethereum DataFrame filtered by 'ethereum_price > 1.3'")
     // filter() Transformation = filter the records in an RDD. filtering ethereum_price > "1.3".
     val filtered_df_ethereum = df_ethereum.filter($"ethereum_price" > "1.3")
     filtered_df_ethereum.show(false)
     // Create Hive Internal table
     filtered_df_ethereum.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.Ethereum_FilteredByPrice")
+
+    // *****************************************************************************************************
+
+    println("Ethereum DataFrame sortByKey() descending order by ethereum_price")
+    // sortByKey() Transformation
+    val sorted_df_ethereum = filtered_df_ethereum.orderBy(desc("ethereum_price"))
+    sorted_df_ethereum.show(false)
+    // Create Hive Internal table
+    sorted_df_ethereum.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.ethereum_sortedbykeybyprice")
+
   }
 }
