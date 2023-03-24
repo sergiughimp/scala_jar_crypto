@@ -52,7 +52,7 @@ object dryrunCrypto {
     val ethereum_mean_price = df_ethereum.select(mean(col("ethereum_price"))).first().getDouble(0)
     val mean_price_df_ethereum = dropped_ethereum_null_column.withColumn("ethereum_mean_price", lit(ethereum_mean_price))
     mean_price_df_ethereum.show(false)
-    mean_price_df_ethereum.write.mode(SaveMode.Overwrite).saveAsTable("sergiu.ethereum_mean_price")
+    mean_price_df_ethereum.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.ethereum_mean_price")
 
   }
 }
