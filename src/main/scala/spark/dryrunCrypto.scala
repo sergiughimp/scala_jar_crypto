@@ -86,5 +86,12 @@ object dryrunCrypto {
     val mean_price_df_bitcoin = dropped_bitcoin_null_column.withColumn("bitcoin_mean_price", lit(bitcoin_mean_price))
     mean_price_df_bitcoin.show(false)
     mean_price_df_bitcoin.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.bitcoin_mean_price")
+
+    // inner join Ethereum and Bitcoin
+    println("Ethereum Filtered join Bitcoin Filtered")
+    val df_join = filtered_df_ethereum.join(filtered_df_bitcoin, filtered_df_ethereum("ethereum_id") === filtered_df_bitcoin("bitcoin_id"), "inner")
+    df_join.show(false)
+    df_join.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.bitcoinjoinethereum")
+
   }
 }
