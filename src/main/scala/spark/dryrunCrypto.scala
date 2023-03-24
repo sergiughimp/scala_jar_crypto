@@ -78,5 +78,13 @@ object dryrunCrypto {
     // Create Hive Internal table
     sorted_df_bitcoin.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.bitcoin_sortedbykeybyprice")
 
+    // *****************************************************************************************************
+    println("Drop the bitcoin_NULL column and Add a new column bitcoin_mean_price")
+    val dropped_bitcoin_null_column = df_bitcoin.drop("bitcoin_NULL")
+    // Compute the bitcoin_mean_price of the "bitcoin_price" column
+    val bitcoin_mean_price = df_bitcoin.select(mean(col("bitcoin_price"))).first().getDouble(0)
+    val mean_price_df_bitcoin = dropped_bitcoin_null_column.withColumn("bitcoin_mean_price", lit(bitcoin_mean_price))
+    mean_price_df_bitcoin.show(false)
+    mean_price_df_bitcoin.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.bitcoin_mean_price")
   }
 }
