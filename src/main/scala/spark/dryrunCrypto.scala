@@ -30,6 +30,6 @@ object dryrunCrypto {
     val filtered_df_ethereum = df_ethereum.filter($"ethereum_price" > "1.3")
     filtered_df_ethereum.show(false)
     // Create Hive Internal table
-    filtered_df_ethereum.write.mode(SaveMode.Overwrite).saveAsTable("sergiu.Ethereum_FilteredByPrice")
+    filtered_df_ethereum.write.mode(SaveMode.Overwrite).saveAsTable("scalagroup.Ethereum_FilteredByPrice")
   }
 }
